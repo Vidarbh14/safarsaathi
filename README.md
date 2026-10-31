@@ -238,6 +238,24 @@ const subscription = safarsaathi.locations.subscribeToBusLiveLocation(
 
 ---
 
+## 🎓 Campus bus GPS tracking (migrations 2–3)
+
+`20261031000002_campus_student_role.sql` and `20261031000003_campus_gps_tracking.sql` add the GEU/GEHU
+campus bus model alongside the intercity tables (which are untouched): `campus_buses`, `campus_routes`,
+`campus_stops`, schedule imports (verbatim CSV rows), departure slots, driver assignments, student route
+choices, trips with frozen route snapshots, latest + historical locations, and a retention function.
+Writes come from the tracking server (`Safarsaathi/apps/tracking-server`) with the service role; RLS
+gives clients read-only, role-scoped access. See `Safarsaathi/docs/GPS_TRACKING.md`.
+
+Migration 3 also fixes three issues in the initial schema:
+- signup no longer trusts `raw_user_meta_data.role` (anyone could self-register as `admin`);
+- users can no longer change their own `profiles.role`;
+- `bus_locations` is no longer readable by anonymous users or writable by any driver for any bus.
+
+After pulling, regenerate types: `npm run supabase:gen-types`.
+
+---
+
 ## ☁️ Deploying to Supabase Cloud
 
 1. **Log in to Supabase CLI**:
